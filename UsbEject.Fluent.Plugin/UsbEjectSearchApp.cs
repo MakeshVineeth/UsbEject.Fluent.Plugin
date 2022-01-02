@@ -30,9 +30,7 @@ public class UsbEjectSearchApp : ISearchApplication
     public ValueTask<IHandleResult> HandleSearchResult(ISearchResult searchResult)
     {
         if (searchResult is not UsbEjectSearchResult usbEjectSearchResult)
-        {
             throw new InvalidCastException(nameof(UsbEjectSearchResult));
-        }
 
         if (searchResult.SelectedOperation is not UsbEjectOperation)
             return new ValueTask<IHandleResult>(new HandleResult(true, false));
@@ -40,13 +38,9 @@ public class UsbEjectSearchApp : ISearchApplication
         DriveInfoTip driveInfoTip = usbEjectSearchResult.DriveInfo;
         EjectStatusEnum status = CoreFunctions.EjectDrive(driveInfoTip);
         if (status != EjectStatusEnum.Success)
-        {
             CommonUtils.ShowMessage("Error!");
-        }
         else
-        {
             CommonUtils.ShowMessage("Status: " + status);
-        }
 
         return new ValueTask<IHandleResult>(new HandleResult(true, false));
     }
@@ -71,9 +65,7 @@ public class UsbEjectSearchApp : ISearchApplication
 
         IEnumerable<DriveInfoTip> drives = ListDrives();
         foreach (DriveInfoTip varDriveLabel in drives)
-        {
-            yield return new UsbEjectSearchResult(varDriveLabel.VolumeLabel, searchedText, "USB", 2.0,
-                varDriveLabel.DriveRowLabel, varDriveLabel);
-        }
+            yield return new UsbEjectSearchResult(searchedText, "USB", 2.0,
+                varDriveLabel);
     }
 }

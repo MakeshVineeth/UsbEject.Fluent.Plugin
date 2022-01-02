@@ -15,8 +15,6 @@ public class UsbEjectSearchResult : SearchResultBase
         UsbEjectOperation.EjectOperation
     };
 
-    public DriveInfoTip DriveInfo { get; set; }
-
     public static readonly ObservableCollection<SearchTag> SearchTags = new()
     {
         new SearchTag
@@ -27,13 +25,16 @@ public class UsbEjectSearchResult : SearchResultBase
         }
     };
 
-    public UsbEjectSearchResult(string resultName, string searchedText, string resultType, double score,
-        string rowLabel, DriveInfoTip driveInfoTip) : base(TagName, resultName, searchedText, resultType, score,
+    public UsbEjectSearchResult(string searchedText, string resultType, double score,
+        DriveInfoTip driveInfoTip) : base(TagName, driveInfoTip.VolumeLabel, searchedText, resultType, score,
         SearchOperations, SearchTags)
     {
-        AdditionalInformation = rowLabel;
+        AdditionalInformation = driveInfoTip.DriveRowLabel;
         DriveInfo = driveInfoTip;
+        IconGlyph = SearchResultIcon;
     }
+
+    public DriveInfoTip DriveInfo { get; }
 
     protected override void OnSelectedSearchResultChanged()
     {

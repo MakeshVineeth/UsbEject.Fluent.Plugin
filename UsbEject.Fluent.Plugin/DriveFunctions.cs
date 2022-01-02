@@ -1,83 +1,76 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using UsbEject;
+﻿namespace UsbEject.Fluent.Plugin;
 
-namespace UsbEject.Fluent.Plugin
+public class DriveFunctions
 {
-    public class DriveFunctions
+    public static IEnumerable<DriveInfoTip> ListDrives()
     {
-        public static IEnumerable<DriveInfoTip> ListDrives()
+        string mainDrive = Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.System));
+        using VolumeDeviceClass volumes = new();
+        IDictionary<string, List<string>> drivesDict = new Dictionary<string, List<string>>();
+        string mainVolume = string.Empty;
+
+        foreach (Volume eachVolume in volumes.Volumes)
         {
-            string mainDrive = Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.System));
-            using VolumeDeviceClass volumes = new();
-            IDictionary<string, List<string>> drivesDict = new Dictionary<string, List<string>>();
-            string mainVolume = string.Empty;
+            string volumeLetter = eachVolume.LogicalDrive + @"\";
+            List<Disk> disks = new(eachVolume.Disks);
+            string volumeLabelStr = string.Empty;
 
-            foreach (Volume eachVolume in volumes.Volumes)
+            foreach (Disk eachDisk in disks)
             {
-                string volumeLetter = eachVolume.LogicalDrive + @"\";
-                List<Disk> disks = new(eachVolume.Disks);
-                string volumeLabelStr = string.Empty;
-
-                foreach (Disk eachDisk in disks)
-                {
-                    volumeLabelStr = eachDisk.FriendlyName ?? "";
-                    if (string.IsNullOrWhiteSpace(volumeLabelStr)) continue;
-                    if (!drivesDict.ContainsKey(volumeLabelStr))
-                        drivesDict.Add(volumeLabelStr, new List<string>());
-                }
-
-                if (mainDrive != null && mainDrive.Contains(volumeLetter))
-                {
-                    mainVolume = volumeLabelStr;
-                    continue;
-                }
-
-                if (!string.IsNullOrWhiteSpace(mainVolume) && volumeLabelStr.Contains(mainVolume)) continue;
-                if (string.IsNullOrWhiteSpace(volumeLetter) || !HasDrives(eachVolume)) continue;
-
-                if (drivesDict.ContainsKey(volumeLabelStr)) drivesDict[volumeLabelStr].Add(volumeLetter);
+                volumeLabelStr = eachDisk.FriendlyName ?? "";
+                if (string.IsNullOrWhiteSpace(volumeLabelStr)) continue;
+                if (!drivesDict.ContainsKey(volumeLabelStr))
+                    drivesDict.Add(volumeLabelStr, new List<string>());
             }
 
-            foreach (string volumeKey in drivesDict.Keys)
+            if (mainDrive != null && mainDrive.Contains(volumeLetter))
             {
-                string volumeTitle = volumeKey.Trim();
-                List<string> driveLetters = drivesDict[volumeTitle];
-
-                string rowLabel = driveLetters.Aggregate(string.Empty,
-                    (current, driveLetter) => current + driveLetter + GetDriveLabel(driveLetter));
-
-                if (driveLetters.Count > 0)
-                    yield return new DriveInfoTip
-                    {
-                        VolumeLabel = volumeTitle, DriveLetters = driveLetters,
-                        DriveRowLabel = rowLabel
-                    };
+                mainVolume = volumeLabelStr;
+                continue;
             }
+
+            if (!string.IsNullOrWhiteSpace(mainVolume) && volumeLabelStr.Contains(mainVolume)) continue;
+            if (string.IsNullOrWhiteSpace(volumeLetter) || !HasDrives(eachVolume)) continue;
+
+            if (drivesDict.ContainsKey(volumeLabelStr)) drivesDict[volumeLabelStr].Add(volumeLetter);
         }
 
-        private static bool HasDrives(Volume volume)
+        foreach (string volumeKey in drivesDict.Keys)
         {
-            int[] nums = volume.DiskNumbers;
-            return nums.Length > 0;
-        }
+            string volumeTitle = volumeKey.Trim();
+            List<string> driveLetters = drivesDict[volumeTitle];
 
-        private static string GetDriveLabel(string driveLetter)
-        {
-            DriveInfo[] driveInfos = DriveInfo.GetDrives();
-            foreach (DriveInfo drive in driveInfos)
-                if (driveLetter.Contains(drive.Name))
+            string rowLabel = driveLetters.Aggregate(string.Empty,
+                (current, driveLetter) => current + driveLetter + GetDriveLabel(driveLetter));
+
+            if (driveLetters.Count > 0)
+                yield return new DriveInfoTip
                 {
-                    if (drive.DriveType != DriveType.Fixed && drive.DriveType != DriveType.Removable)
-                        return string.Empty;
-
-                    string label = drive.VolumeLabel;
-                    if (!string.IsNullOrWhiteSpace(label)) return $" ( {label} ) ";
-                }
-
-            return string.Empty;
+                    VolumeLabel = volumeTitle, DriveLetters = driveLetters,
+                    DriveRowLabel = rowLabel
+                };
         }
+    }
+
+    private static bool HasDrives(Volume volume)
+    {
+        int[] nums = volume.DiskNumbers;
+        return nums.Length > 0;
+    }
+
+    private static string GetDriveLabel(string driveLetter)
+    {
+        DriveInfo[] driveInfos = DriveInfo.GetDrives();
+        foreach (DriveInfo drive in driveInfos)
+            if (driveLetter.Contains(drive.Name))
+            {
+                if (drive.DriveType != DriveType.Fixed && drive.DriveType != DriveType.Removable)
+                    return string.Empty;
+
+                string label = drive.VolumeLabel;
+                if (!string.IsNullOrWhiteSpace(label)) return $" ( {label} ) ";
+            }
+
+        return string.Empty;
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace UsbEject.Fluent.Plugin
+﻿namespace UsbEject.Fluent.Plugin;
+
+public enum EjectStatusEnum
 {
-    public enum EjectStatusEnum
-    {
-        Success,
-        Error,
-        Null
-    }
+    Success,
+    Error,
+    Null
 }
