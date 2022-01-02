@@ -12,7 +12,10 @@ public class UsbEjectSearchResult : SearchResultBase
 
     public static readonly ObservableCollection<ISearchOperation> SearchOperations = new()
     {
+        UsbEjectOperation.EjectOperation
     };
+
+    public DriveInfoTip DriveInfo { get; set; }
 
     public static readonly ObservableCollection<SearchTag> SearchTags = new()
     {
@@ -25,9 +28,11 @@ public class UsbEjectSearchResult : SearchResultBase
     };
 
     public UsbEjectSearchResult(string resultName, string searchedText, string resultType, double score,
-        string rowLabel) : base(TagName, resultName, searchedText, resultType, score, SearchOperations, SearchTags)
+        string rowLabel, DriveInfoTip driveInfoTip) : base(TagName, resultName, searchedText, resultType, score,
+        SearchOperations, SearchTags)
     {
         AdditionalInformation = rowLabel;
+        DriveInfo = driveInfoTip;
     }
 
     protected override void OnSelectedSearchResultChanged()
