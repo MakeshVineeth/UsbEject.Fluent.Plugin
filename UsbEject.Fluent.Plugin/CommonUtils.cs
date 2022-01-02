@@ -1,4 +1,5 @@
-﻿using Windows.Data.Xml.Dom;
+﻿using System.Windows;
+using Windows.Data.Xml.Dom;
 using Windows.UI.Notifications;
 using Blast.API.Core.UI;
 
@@ -6,18 +7,23 @@ namespace UsbEject.Fluent.Plugin;
 
 public class CommonUtils
 {
-    public static void ShowMessage(string message)
+    public static void ShowMessage(string? message)
     {
-        XmlDocument toastXml = ToastNotificationManager.GetTemplateContent(ToastTemplateType.ToastText02);
+        UiUtilities.UiDispatcher.Post(() =>
+        {
+            MessageBox.Show("OK");
 
-        XmlNodeList stringElements = toastXml.GetElementsByTagName("text");
-        stringElements[0].AppendChild(toastXml.CreateTextNode("USB Eject"));
-        stringElements[1].AppendChild(toastXml.CreateTextNode(message));
+            XmlDocument toastXml = ToastNotificationManager.GetTemplateContent(ToastTemplateType.ToastText02);
 
-        var toast = new ToastNotification(toastXml);
-        ToastNotifier toastNotifier =
-            ToastNotificationManager.CreateToastNotifier("USB Eject");
+            XmlNodeList stringElements = toastXml.GetElementsByTagName("text");
+            stringElements[0].AppendChild(toastXml.CreateTextNode("USB Eject"));
+            stringElements[1].AppendChild(toastXml.CreateTextNode(message));
 
-        UiUtilities.UiDispatcher.Post(() => { toastNotifier.Show(toast); });
+            var toast = new ToastNotification(toastXml);
+            ToastNotifier toastNotifier =
+                ToastNotificationManager.CreateToastNotifier("USB Eject");
+
+            toastNotifier.Show(toast);
+        });
     }
 }

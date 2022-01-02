@@ -7,7 +7,7 @@ public class CoreFunctions
         try
         {
             var status = EjectStatusEnum.Null;
-            string targetVolumeLabel = driveInfoTip?.VolumeLabel;
+            string? targetVolumeLabel = driveInfoTip.VolumeLabel;
             if (string.IsNullOrWhiteSpace(targetVolumeLabel)) return EjectStatusEnum.Error;
             targetVolumeLabel = targetVolumeLabel.Trim();
 
@@ -19,8 +19,8 @@ public class CoreFunctions
                 if (!Directory.Exists(currentDriveLetter)) continue;
 
                 List<Disk> disks = new(eachVolume.Disks);
-                if (string.IsNullOrWhiteSpace(currentDriveLetter) ||
-                    !driveInfoTip.DriveLetters.Contains(currentDriveLetter))
+                if (driveInfoTip?.DriveLetters != null && (string.IsNullOrWhiteSpace(currentDriveLetter) ||
+                                                           !driveInfoTip.DriveLetters.Contains(currentDriveLetter)))
                     continue;
 
                 if (!(from eachDisk in from eachDisk in disks
@@ -33,7 +33,7 @@ public class CoreFunctions
 
                 if (Directory.Exists(currentDriveLetter))
                 {
-                    string lockedStr = ProcessTools.IsLocked(currentDriveLetter);
+                    string? lockedStr = ProcessTools.IsLocked(currentDriveLetter);
                     if (!string.IsNullOrWhiteSpace(lockedStr)) CommonUtils.ShowMessage(lockedStr);
                     break;
                 }

@@ -4,7 +4,7 @@ public class DriveFunctions
 {
     public static IEnumerable<DriveInfoTip> ListDrives()
     {
-        string mainDrive = Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.System));
+        string? mainDrive = Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.System));
         using VolumeDeviceClass volumes = new();
         IDictionary<string, List<string>> drivesDict = new Dictionary<string, List<string>>();
         string mainVolume = string.Empty;

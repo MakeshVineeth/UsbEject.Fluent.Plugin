@@ -4,7 +4,7 @@ namespace UsbEject.Fluent.Plugin;
 
 public class ProcessTools
 {
-    public static string IsLocked(string volumeLetter)
+    public static string? IsLocked(string volumeLetter)
     {
         var list = new HashSet<string>();
         var dir = new DirectoryInfo(volumeLetter);
