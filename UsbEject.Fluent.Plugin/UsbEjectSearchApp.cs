@@ -9,7 +9,7 @@ namespace UsbEject.Fluent.Plugin;
 
 public class UsbEjectSearchApp : ISearchApplication
 {
-    private const string SearchAppName = "USB Eject";
+    private const string SearchAppName = "USBEject";
     private readonly SearchApplicationInfo _applicationInfo;
 
     public UsbEjectSearchApp()
