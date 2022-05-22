@@ -39,10 +39,11 @@ public class UsbEjectSearchApp : ISearchApplication
         EjectStatusEnum status = CoreFunctions.EjectDrive(driveInfoTip);
         if (status != EjectStatusEnum.Success)
         {
-            CommonUtils.ShowMessage("Error!");
         }
         else
+        {
             CommonUtils.ShowMessage("Status: " + status);
+        }
 
         return new ValueTask<IHandleResult>(new HandleResult(true, false));
     }

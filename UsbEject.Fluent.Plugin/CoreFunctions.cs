@@ -34,7 +34,15 @@ public class CoreFunctions
                 if (Directory.Exists(currentDriveLetter))
                 {
                     string? lockedStr = ProcessTools.IsLocked(currentDriveLetter);
-                    if (!string.IsNullOrWhiteSpace(lockedStr)) CommonUtils.ShowMessage(lockedStr);
+                    if (!string.IsNullOrWhiteSpace(lockedStr))
+                    {
+                        CommonUtils.ShowMessage("Failed! Locked by " + lockedStr);
+                    }
+                    else
+                    {
+                        CommonUtils.ShowMessage("Failed to eject the drive!");
+                    }
+
                     break;
                 }
 
