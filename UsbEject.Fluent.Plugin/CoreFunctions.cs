@@ -24,12 +24,12 @@ public class CoreFunctions
                     continue;
 
                 if (!(from eachDisk in from eachDisk in disks
-                            let eachVolumeLabel = eachDisk.FriendlyName ?? ""
-                            where !string.IsNullOrWhiteSpace(eachVolumeLabel)
-                            where targetVolumeLabel.Contains(eachVolumeLabel)
-                            select eachDisk
-                        where Directory.Exists(currentDriveLetter)
-                        select eachDisk.Eject(true)).Any()) continue;
+                                       let eachVolumeLabel = eachDisk.FriendlyName ?? ""
+                                       where !string.IsNullOrWhiteSpace(eachVolumeLabel)
+                                       where targetVolumeLabel.Contains(eachVolumeLabel)
+                                       select eachDisk
+                      where Directory.Exists(currentDriveLetter)
+                      select eachDisk.Eject(true)).Any()) continue;
 
                 if (Directory.Exists(currentDriveLetter))
                 {

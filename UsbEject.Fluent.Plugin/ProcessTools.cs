@@ -12,16 +12,34 @@ public class ProcessTools
         // Search in all directories.
         IEnumerable<DirectoryInfo> dirs = dir.GetDirectories();
         var processesList = new List<Process>();
-        foreach (DirectoryInfo d in dirs) processesList.AddRange(d.GetLockProcesses());
+        foreach (DirectoryInfo d in dirs)
+        {
+            try
+            {
+                processesList.AddRange(d.GetLockProcesses());
+            }
+            catch (Exception)
+            {
+            }
+        }
 
         // Search in all files.
         IEnumerable<FileInfo> files = dir.GetFiles();
-        foreach (FileInfo fileInfoVar in files) processesList.AddRange(fileInfoVar.GetLockProcesses());
+        foreach (FileInfo fileInfoVar in files)
+        {
+            try
+            {
+                processesList.AddRange(fileInfoVar.GetLockProcesses());
+            }
+            catch (Exception)
+            {
+            }
+        }
 
         foreach (Process process in from process in processesList
-                 let name = process.ProcessName
-                 where !string.IsNullOrWhiteSpace(name) && !list.Contains(name)
-                 select process)
+                                    let name = process.ProcessName
+                                    where !string.IsNullOrWhiteSpace(name) && !list.Contains(name)
+                                    select process)
             list.Add(process.ProcessName);
 
         return list.Count > 0 ? string.Join(" ", list) : null;
