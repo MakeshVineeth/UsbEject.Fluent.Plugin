@@ -16,15 +16,25 @@ public class ProcessTools
         {
             try
             {
-                processesList.AddRange(d.GetLockProcesses());
+                var nested_files = d.EnumerateFiles("*", SearchOption.AllDirectories);
+                foreach (FileInfo fileInfoVar in nested_files)
+                {
+                    try
+                    {
+                        processesList.AddRange(fileInfoVar.GetLockProcesses());
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
             }
             catch (Exception)
             {
             }
         }
 
-        // Search in all files.
-        IEnumerable<FileInfo> files = dir.GetFiles();
+        // Search in all root files.
+        IEnumerable<FileInfo> files = dir.EnumerateFiles();
         foreach (FileInfo fileInfoVar in files)
         {
             try
@@ -42,6 +52,6 @@ public class ProcessTools
                                     select process)
             list.Add(process.ProcessName);
 
-        return list.Count > 0 ? string.Join(" ", list) : null;
+        return list.Count > 0 ? string.Join(", ", list) : null;
     }
 }
