@@ -13,6 +13,8 @@ public class CoreFunctions
 
             using VolumeDeviceClass volumesClass = new();
             IList<Volume> allVolumes = new List<Volume>(volumesClass.Volumes);
+            string lockedStr = string.Empty;
+
             foreach (Volume eachVolume in allVolumes)
             {
                 string currentDriveLetter = eachVolume.LogicalDrive + @"\";
@@ -33,15 +35,10 @@ public class CoreFunctions
 
                 if (Directory.Exists(currentDriveLetter))
                 {
-                    string lockedStr = ProcessTools.IsLocked(currentDriveLetter);
+                    lockedStr += ProcessTools.IsLocked(currentDriveLetter) + " ";
                     if (!string.IsNullOrWhiteSpace(lockedStr))
                     {
-                        CommonUtils.ShowMessage("Failed! Locked by " + lockedStr);
                         break;
-                    }
-                    else
-                    {
-                        CommonUtils.ShowMessage("Failed to eject the drive!");
                     }
                 }
                 else
@@ -49,6 +46,15 @@ public class CoreFunctions
                     status = EjectStatusEnum.Success;
                     break;
                 }
+            }
+
+            if (!string.IsNullOrWhiteSpace(lockedStr))
+            {
+                CommonUtils.ShowMessage("Failed! Locked by " + lockedStr.Trim());
+            }
+            else if (status != EjectStatusEnum.Success)
+            {
+                CommonUtils.ShowMessage("Failed to eject the drive!");
             }
 
             return status;
