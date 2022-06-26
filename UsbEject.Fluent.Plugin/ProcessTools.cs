@@ -4,54 +4,96 @@ namespace UsbEject.Fluent.Plugin;
 
 public class ProcessTools
 {
-    public static string? IsLocked(string volumeLetter)
+    public static string IsLocked(string volumeLetter)
     {
-        var list = new HashSet<string>();
-        var dir = new DirectoryInfo(volumeLetter);
-
-        // Search in all directories.
-        IEnumerable<DirectoryInfo> dirs = dir.GetDirectories();
-        var processesList = new List<Process>();
-        foreach (DirectoryInfo d in dirs)
+        try
         {
-            try
+            var list = new HashSet<string>();
+            var dir = new DirectoryInfo(volumeLetter);
+            Stopwatch sw = Stopwatch.StartNew();
+            long max_time_limit = 5000;
+            var processesList = new List<Process>();
+            bool locked_process_found = false;
+
+            // Search in all root files.
+            IEnumerable<FileInfo> files = dir.EnumerateFiles();
+            foreach (FileInfo fileInfoVar in files)
             {
-                var nested_files = d.EnumerateFiles("*", SearchOption.AllDirectories);
-                foreach (FileInfo fileInfoVar in nested_files)
+                if (sw.ElapsedMilliseconds > max_time_limit)
                 {
-                    try
+                    return string.Empty;
+                }
+
+                try
+                {
+                    Process[] temp_list = fileInfoVar.GetLockProcesses();
+                    if (temp_list.Length > 0)
                     {
-                        processesList.AddRange(fileInfoVar.GetLockProcesses());
-                    }
-                    catch (Exception)
-                    {
+                        processesList.AddRange(temp_list);
+                        locked_process_found = true;
+                        break;
                     }
                 }
+                catch (Exception)
+                {
+                }
             }
-            catch (Exception)
-            {
-            }
-        }
 
-        // Search in all root files.
-        IEnumerable<FileInfo> files = dir.EnumerateFiles();
-        foreach (FileInfo fileInfoVar in files)
+            // Search in all directories.
+            IEnumerable<DirectoryInfo> dirs = dir.GetDirectories();
+            foreach (DirectoryInfo d in dirs)
+            {
+                if (locked_process_found == true)
+                {
+                    break;
+                }
+
+                if (sw.ElapsedMilliseconds > max_time_limit)
+                {
+                    return string.Empty;
+                }
+
+                try
+                {
+                    var nested_files = d.EnumerateFiles("*", SearchOption.AllDirectories);
+                    foreach (FileInfo fileInfoVar in nested_files)
+                    {
+                        if (sw.ElapsedMilliseconds > max_time_limit)
+                        {
+                            return string.Empty;
+                        }
+
+                        try
+                        {
+                            Process[] tempList = fileInfoVar.GetLockProcesses();
+                            if (tempList.Length > 0)
+                            {
+                                processesList.AddRange(tempList);
+                                locked_process_found = true;
+                                break;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            foreach (Process process in from process in processesList
+                                        let name = process.ProcessName
+                                        where !string.IsNullOrWhiteSpace(name) && !list.Contains(name)
+                                        select process)
+                list.Add(process.ProcessName);
+
+            return list.Count > 0 ? string.Join(" ", list) : string.Empty;
+        }
+        catch (Exception)
         {
-            try
-            {
-                processesList.AddRange(fileInfoVar.GetLockProcesses());
-            }
-            catch (Exception)
-            {
-            }
+            return string.Empty;
         }
-
-        foreach (Process process in from process in processesList
-                                    let name = process.ProcessName
-                                    where !string.IsNullOrWhiteSpace(name) && !list.Contains(name)
-                                    select process)
-            list.Add(process.ProcessName);
-
-        return list.Count > 0 ? string.Join(", ", list) : null;
     }
 }
