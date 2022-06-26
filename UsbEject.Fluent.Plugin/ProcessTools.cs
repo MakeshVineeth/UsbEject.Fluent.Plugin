@@ -19,7 +19,8 @@ public class ProcessTools
             IEnumerable<FileInfo> files = dir.EnumerateFiles("*.*",
                 new EnumerationOptions
                 {
-                    IgnoreInaccessible = true
+                    IgnoreInaccessible = true,
+                    ReturnSpecialDirectories = false,
                 });
 
             foreach (FileInfo fileInfoVar in files)

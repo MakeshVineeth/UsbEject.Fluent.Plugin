@@ -38,8 +38,7 @@ public class CoreFunctions
                     string temp = ProcessTools.IsLocked(currentDriveLetter);
                     if (!string.IsNullOrWhiteSpace(temp))
                     {
-                        lockedStr += temp + " ";
-                        break;
+                        lockedStr += temp + "; ";
                     }
                 }
                 else
