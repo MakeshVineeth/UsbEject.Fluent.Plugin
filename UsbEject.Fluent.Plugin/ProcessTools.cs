@@ -55,7 +55,13 @@ public class ProcessTools
 
                 try
                 {
-                    var nested_files = d.EnumerateFiles("*", SearchOption.AllDirectories);
+                    var nested_files = d.EnumerateFiles("*", new EnumerationOptions
+                    {
+                        IgnoreInaccessible = true,
+                        RecurseSubdirectories = true,
+                        ReturnSpecialDirectories = false
+                    });
+
                     foreach (FileInfo fileInfoVar in nested_files)
                     {
                         if (sw.ElapsedMilliseconds > max_time_limit)

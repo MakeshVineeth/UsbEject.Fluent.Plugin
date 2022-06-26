@@ -35,9 +35,10 @@ public class CoreFunctions
 
                 if (Directory.Exists(currentDriveLetter))
                 {
-                    lockedStr += ProcessTools.IsLocked(currentDriveLetter) + " ";
-                    if (!string.IsNullOrWhiteSpace(lockedStr))
+                    string temp = ProcessTools.IsLocked(currentDriveLetter);
+                    if (!string.IsNullOrWhiteSpace(temp))
                     {
+                        lockedStr += temp + " ";
                         break;
                     }
                 }
