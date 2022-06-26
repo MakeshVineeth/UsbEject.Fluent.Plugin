@@ -11,12 +11,17 @@ public class ProcessTools
             var list = new HashSet<string>();
             var dir = new DirectoryInfo(volumeLetter);
             Stopwatch sw = Stopwatch.StartNew();
-            long max_time_limit = 5000;
+            long max_time_limit = 8000;
             var processesList = new List<Process>();
             bool locked_process_found = false;
 
             // Search in all root files.
-            IEnumerable<FileInfo> files = dir.EnumerateFiles();
+            IEnumerable<FileInfo> files = dir.EnumerateFiles("*.*",
+                new EnumerationOptions
+                {
+                    IgnoreInaccessible = true
+                });
+
             foreach (FileInfo fileInfoVar in files)
             {
                 if (sw.ElapsedMilliseconds > max_time_limit)
@@ -55,7 +60,7 @@ public class ProcessTools
 
                 try
                 {
-                    var nested_files = d.EnumerateFiles("*", new EnumerationOptions
+                    var nested_files = d.EnumerateFiles("*.*", new EnumerationOptions
                     {
                         IgnoreInaccessible = true,
                         RecurseSubdirectories = true,
