@@ -11,19 +11,17 @@ public class ProcessTools
             var list = new HashSet<string>();
             var dir = new DirectoryInfo(volumeLetter);
             Stopwatch sw = Stopwatch.StartNew();
-            long max_time_limit = 8000;
+            long max_time_limit = 20000;
             var processesList = new List<Process>();
-            bool locked_process_found = false;
 
-            // Search in all root files.
-            IEnumerable<FileInfo> files = dir.EnumerateFiles("*.*",
-                new EnumerationOptions
-                {
-                    IgnoreInaccessible = true,
-                    ReturnSpecialDirectories = false,
-                });
+            var nested_files = dir.EnumerateFiles("*.*", new EnumerationOptions
+            {
+                IgnoreInaccessible = true,
+                RecurseSubdirectories = true,
+                ReturnSpecialDirectories = false
+            });
 
-            foreach (FileInfo fileInfoVar in files)
+            foreach (FileInfo fileInfoVar in nested_files)
             {
                 if (sw.ElapsedMilliseconds > max_time_limit)
                 {
@@ -32,62 +30,11 @@ public class ProcessTools
 
                 try
                 {
-                    Process[] temp_list = fileInfoVar.GetLockProcesses();
-                    if (temp_list.Length > 0)
+                    Process[] tempList = fileInfoVar.GetLockProcesses();
+                    if (tempList.Length > 0)
                     {
-                        processesList.AddRange(temp_list);
-                        locked_process_found = true;
-                        break;
-                    }
-                }
-                catch (Exception)
-                {
-                }
-            }
-
-            // Search in all directories.
-            IEnumerable<DirectoryInfo> dirs = dir.GetDirectories();
-            foreach (DirectoryInfo d in dirs)
-            {
-                if (locked_process_found == true)
-                {
-                    break;
-                }
-
-                if (sw.ElapsedMilliseconds > max_time_limit)
-                {
-                    return string.Empty;
-                }
-
-                try
-                {
-                    var nested_files = d.EnumerateFiles("*.*", new EnumerationOptions
-                    {
-                        IgnoreInaccessible = true,
-                        RecurseSubdirectories = true,
-                        ReturnSpecialDirectories = false
-                    });
-
-                    foreach (FileInfo fileInfoVar in nested_files)
-                    {
-                        if (sw.ElapsedMilliseconds > max_time_limit)
-                        {
-                            return string.Empty;
-                        }
-
-                        try
-                        {
-                            Process[] tempList = fileInfoVar.GetLockProcesses();
-                            if (tempList.Length > 0)
-                            {
-                                processesList.AddRange(tempList);
-                                locked_process_found = true;
-                                break;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                        }
+                        processesList.AddRange(tempList);
+                        break; // Currently breaking the loop if first locked process is found.
                     }
                 }
                 catch (Exception)
