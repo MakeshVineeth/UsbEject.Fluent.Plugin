@@ -1,0 +1,14 @@
+{
+    "IsEnabled": true,
+    "InstalledVersion": "1.0.0.0",
+    "Name": "USBEject",
+    "DisplayName": "USB Eject",
+    "Description": "Eject drives right within FS. Show locked processes.",
+    "PublisherName": "Makesh Vineeth",
+    "Version": "1.0.0.0",
+    "MinimumFluentSearchVersion": null,
+    "URL": "https://github.com/MakeshVineeth/UsbEject.Fluent.Plugin",
+    "DownloadURL": "https://github.com/MakeshVineeth/UsbEject.Fluent.Plugin",
+    "IconUrl": null,
+    "IconGlyph": "\uF78B"
+}

@@ -1,22 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsbEject.Fluent.Plugin", "UsbEject.Fluent.Plugin\UsbEject.Fluent.Plugin.csproj", "{C38DC8AA-0182-4B6C-97D9-62099B90522B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UsbEject.Fluent.Plugin", "UsbEject.Fluent.Plugin\UsbEject.Fluent.Plugin.csproj", "{C38DC8AA-0182-4B6C-97D9-62099B90522B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C38DC8AA-0182-4B6C-97D9-62099B90522B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C38DC8AA-0182-4B6C-97D9-62099B90522B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C38DC8AA-0182-4B6C-97D9-62099B90522B}.Debug|x64.ActiveCfg = Debug|x64
+		{C38DC8AA-0182-4B6C-97D9-62099B90522B}.Debug|x64.Build.0 = Debug|x64
 		{C38DC8AA-0182-4B6C-97D9-62099B90522B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C38DC8AA-0182-4B6C-97D9-62099B90522B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C38DC8AA-0182-4B6C-97D9-62099B90522B}.Release|x64.ActiveCfg = Release|x64
+		{C38DC8AA-0182-4B6C-97D9-62099B90522B}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2BCD648F-3D1C-411F-A8A4-EDCE5850A7AC}
 	EndGlobalSection
 EndGlobal
