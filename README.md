@@ -1,4 +1,9 @@
 # UsbEject.Fluent.Plugin
+
+List Drives to Eject           |  Show Locked Processes
+:-------------------------:|:-------------------------:
+![Drive Listing](/Images/Image1.png)  |  ![Error Notification](/Images/Image2.png)
+
 This repo is a [Fluent Search](https://fluentsearch.net) plugin for ejecting drives right within FS. And also display what's locking the drive in case of failure.
 
 # Usage
