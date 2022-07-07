@@ -23,7 +23,8 @@ public class UsbEjectSearchApp : ISearchApplication
             SearchTagOnly = true,
             ApplicationIconGlyph = SearchResultIcon,
             SearchAllTime = ApplicationSearchTime.Fast,
-            DefaultSearchTags = SearchTags
+            DefaultSearchTags = SearchTags,
+            SearchTagName = TagName
         };
     }
 
