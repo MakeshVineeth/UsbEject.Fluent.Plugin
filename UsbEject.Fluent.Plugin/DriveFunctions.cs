@@ -9,11 +9,11 @@ namespace UsbEject.Fluent.Plugin
             using VolumeDeviceClass volumes = new();
             IDictionary<string, List<string>> drivesDict = new Dictionary<string, List<string>>();
             List<DriveInfo> drives = GetExternalDrives();
-            List<string> all_drive_letters = new();
+            Dictionary<string, string> all_drive_letters = new();
 
             foreach (DriveInfo item in drives)
             {
-                all_drive_letters.Add(item.Name);
+                all_drive_letters[item.Name] = item.VolumeLabel;
             }
 
             foreach (Volume eachVolume in volumes.Volumes)
@@ -22,7 +22,7 @@ namespace UsbEject.Fluent.Plugin
                 if (string.IsNullOrWhiteSpace(logicalDrive)) continue;
 
                 string volumeLetter = logicalDrive + @"\";
-                if (!all_drive_letters.Contains(volumeLetter))
+                if (!all_drive_letters.ContainsKey(volumeLetter))
                 {
                     continue;
                 }
@@ -49,7 +49,7 @@ namespace UsbEject.Fluent.Plugin
                 List<string> driveLetters = drivesDict[volumeTitle];
 
                 string rowLabel = driveLetters.Aggregate(string.Empty,
-                    (current, driveLetter) => current + driveLetter + GetDriveLabel(driveLetter, drives));
+                    (current, driveLetter) => current + driveLetter + " ( " + all_drive_letters[driveLetter] + " ) ");
 
                 if (driveLetters.Count > 0)
                 {
@@ -61,18 +61,6 @@ namespace UsbEject.Fluent.Plugin
                     };
                 }
             }
-        }
-
-        private static string GetDriveLabel(string driveLetter, List<DriveInfo> driveInfos)
-        {
-            foreach (DriveInfo drive in driveInfos)
-                if (driveLetter.Contains(drive.Name))
-                {
-                    string label = drive.VolumeLabel;
-                    if (!string.IsNullOrWhiteSpace(label)) return $" ( {label} ) ";
-                }
-
-            return string.Empty;
         }
 
         public static List<DriveInfo> GetExternalDrives()
