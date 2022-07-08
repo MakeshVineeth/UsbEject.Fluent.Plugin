@@ -32,6 +32,8 @@ public class UsbEjectSearchResult : SearchResultBase
         AdditionalInformation = driveInfoTip.DriveRowLabel;
         DriveInfo = driveInfoTip;
         IconGlyph = SearchResultIcon;
+        ShouldCacheResult = false;
+        CanPin = false;
     }
 
     public DriveInfoTip DriveInfo { get; }
