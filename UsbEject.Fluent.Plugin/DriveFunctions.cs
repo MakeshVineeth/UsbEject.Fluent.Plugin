@@ -40,7 +40,6 @@ namespace UsbEject.Fluent.Plugin
                         drivesDict.Add(volumeLabelStr, new List<string>());
                 }
 
-                if (string.IsNullOrWhiteSpace(volumeLetter) || !HasDrives(eachVolume)) continue;
                 if (drivesDict.ContainsKey(volumeLabelStr)) drivesDict[volumeLabelStr].Add(volumeLetter);
             }
 
@@ -50,7 +49,7 @@ namespace UsbEject.Fluent.Plugin
                 List<string> driveLetters = drivesDict[volumeTitle];
 
                 string rowLabel = driveLetters.Aggregate(string.Empty,
-                    (current, driveLetter) => current + driveLetter + GetDriveLabel(driveLetter));
+                    (current, driveLetter) => current + driveLetter + GetDriveLabel(driveLetter, drives));
 
                 if (driveLetters.Count > 0)
                 {
@@ -64,15 +63,8 @@ namespace UsbEject.Fluent.Plugin
             }
         }
 
-        private static bool HasDrives(Volume volume)
+        private static string GetDriveLabel(string driveLetter, List<DriveInfo> driveInfos)
         {
-            int[] nums = volume.DiskNumbers;
-            return nums.Length > 0;
-        }
-
-        private static string GetDriveLabel(string driveLetter)
-        {
-            List<DriveInfo> driveInfos = GetExternalDrives();
             foreach (DriveInfo drive in driveInfos)
                 if (driveLetter.Contains(drive.Name))
                 {
