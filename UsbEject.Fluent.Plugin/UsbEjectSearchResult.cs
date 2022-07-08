@@ -8,7 +8,7 @@ public class UsbEjectSearchResult : SearchResultBase
 {
     public const string TagName = "eject";
     public const string PluginDesc = "Eject USB Drives";
-    public const string SearchResultIcon = "\uF78B";
+    public const string SearchResultIcon = "\uEDA2";
 
     public static readonly ObservableCollection<ISearchOperation> SearchOperations = new()
     {
