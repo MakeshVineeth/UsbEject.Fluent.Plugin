@@ -1,76 +1,125 @@
-﻿namespace UsbEject.Fluent.Plugin;
+﻿using System.Management;
 
-public class DriveFunctions
+namespace UsbEject.Fluent.Plugin
 {
-    public static IEnumerable<DriveInfoTip> ListDrives()
+    public class DriveFunctions
     {
-        string? mainDrive = Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.System));
-        using VolumeDeviceClass volumes = new();
-        IDictionary<string, List<string>> drivesDict = new Dictionary<string, List<string>>();
-        string mainVolume = string.Empty;
-
-        foreach (Volume eachVolume in volumes.Volumes)
+        public static IEnumerable<DriveInfoTip> ListDrives()
         {
-            string volumeLetter = eachVolume.LogicalDrive + @"\";
-            List<Disk> disks = new(eachVolume.Disks);
-            string volumeLabelStr = string.Empty;
+            using VolumeDeviceClass volumes = new();
+            IDictionary<string, List<string>> drivesDict = new Dictionary<string, List<string>>();
+            List<DriveInfo> drives = GetExternalDrives();
+            List<string> all_drive_letters = new();
 
-            foreach (Disk eachDisk in disks)
+            foreach (DriveInfo item in drives)
             {
-                volumeLabelStr = eachDisk.FriendlyName ?? "";
-                if (string.IsNullOrWhiteSpace(volumeLabelStr)) continue;
-                if (!drivesDict.ContainsKey(volumeLabelStr))
-                    drivesDict.Add(volumeLabelStr, new List<string>());
+                all_drive_letters.Add(item.Name);
             }
 
-            if (mainDrive != null && mainDrive.Contains(volumeLetter))
+            foreach (Volume eachVolume in volumes.Volumes)
             {
-                mainVolume = volumeLabelStr;
-                continue;
-            }
+                string logicalDrive = eachVolume.LogicalDrive;
+                if (string.IsNullOrWhiteSpace(logicalDrive)) continue;
 
-            if (!string.IsNullOrWhiteSpace(mainVolume) && volumeLabelStr.Contains(mainVolume)) continue;
-            if (string.IsNullOrWhiteSpace(volumeLetter) || !HasDrives(eachVolume)) continue;
-
-            if (drivesDict.ContainsKey(volumeLabelStr)) drivesDict[volumeLabelStr].Add(volumeLetter);
-        }
-
-        foreach (string volumeKey in drivesDict.Keys)
-        {
-            string volumeTitle = volumeKey.Trim();
-            List<string> driveLetters = drivesDict[volumeTitle];
-
-            string rowLabel = driveLetters.Aggregate(string.Empty,
-                (current, driveLetter) => current + driveLetter + GetDriveLabel(driveLetter));
-
-            if (driveLetters.Count > 0)
-                yield return new DriveInfoTip
+                string volumeLetter = logicalDrive + @"\";
+                if (!all_drive_letters.Contains(volumeLetter))
                 {
-                    VolumeLabel = volumeTitle, DriveLetters = driveLetters,
-                    DriveRowLabel = rowLabel
-                };
-        }
-    }
+                    continue;
+                }
 
-    private static bool HasDrives(Volume volume)
-    {
-        int[] nums = volume.DiskNumbers;
-        return nums.Length > 0;
-    }
+                List<Disk> disks = new(eachVolume.Disks);
+                string volumeLabelStr = string.Empty;
 
-    private static string GetDriveLabel(string driveLetter)
-    {
-        DriveInfo[] driveInfos = DriveInfo.GetDrives();
-        foreach (DriveInfo drive in driveInfos)
-            if (driveLetter.Contains(drive.Name))
-            {
-                if (drive.DriveType != DriveType.Fixed && drive.DriveType != DriveType.Removable)
-                    return string.Empty;
+                foreach (Disk eachDisk in disks)
+                {
+                    volumeLabelStr = eachDisk.FriendlyName ?? "";
+                    if (string.IsNullOrWhiteSpace(volumeLabelStr)) continue;
 
-                string label = drive.VolumeLabel;
-                if (!string.IsNullOrWhiteSpace(label)) return $" ( {label} ) ";
+                    // Adding volumes to dict and avoiding duplicates at the same time.
+                    if (!drivesDict.ContainsKey(volumeLabelStr))
+                        drivesDict.Add(volumeLabelStr, new List<string>());
+                }
+
+                if (string.IsNullOrWhiteSpace(volumeLetter) || !HasDrives(eachVolume)) continue;
+                if (drivesDict.ContainsKey(volumeLabelStr)) drivesDict[volumeLabelStr].Add(volumeLetter);
             }
 
-        return string.Empty;
+            foreach (string volumeKey in drivesDict.Keys)
+            {
+                string volumeTitle = volumeKey.Trim();
+                List<string> driveLetters = drivesDict[volumeTitle];
+
+                string rowLabel = driveLetters.Aggregate(string.Empty,
+                    (current, driveLetter) => current + driveLetter + GetDriveLabel(driveLetter));
+
+                if (driveLetters.Count > 0)
+                {
+                    yield return new DriveInfoTip
+                    {
+                        VolumeLabel = volumeTitle,
+                        DriveLetters = driveLetters,
+                        DriveRowLabel = rowLabel
+                    };
+                }
+            }
+        }
+
+        private static bool HasDrives(Volume volume)
+        {
+            int[] nums = volume.DiskNumbers;
+            return nums.Length > 0;
+        }
+
+        private static string GetDriveLabel(string driveLetter)
+        {
+            List<DriveInfo> driveInfos = GetExternalDrives();
+            foreach (DriveInfo drive in driveInfos)
+                if (driveLetter.Contains(drive.Name))
+                {
+                    string label = drive.VolumeLabel;
+                    if (!string.IsNullOrWhiteSpace(label)) return $" ( {label} ) ";
+                }
+
+            return string.Empty;
+        }
+
+        public static List<DriveInfo> GetExternalDrives()
+        {
+            /* 
+            
+            Code taken from https://stackoverflow.com/a/56381695
+            Author: TJ Rockefeller
+            Author Profile: https://stackoverflow.com/users/4708150/tj-rockefeller
+            
+            */
+
+            var drives = DriveInfo.GetDrives();
+            var externalDrives = new List<DriveInfo>();
+
+            var allPhysicalDisks = new ManagementObjectSearcher("select MediaType, DeviceID from Win32_DiskDrive").Get();
+
+            foreach (var physicalDisk in allPhysicalDisks)
+            {
+                var allPartitionsOnPhysicalDisk = new ManagementObjectSearcher($"associators of {{Win32_DiskDrive.DeviceID='{physicalDisk["DeviceID"]}'}} where AssocClass = Win32_DiskDriveToDiskPartition").Get();
+                foreach (var partition in allPartitionsOnPhysicalDisk)
+                {
+                    if (partition == null)
+                        continue;
+
+                    var allLogicalDisksOnPartition = new ManagementObjectSearcher($"associators of {{Win32_DiskPartition.DeviceID='{partition["DeviceID"]}'}} where AssocClass = Win32_LogicalDiskToPartition").Get();
+                    foreach (var logicalDisk in allLogicalDisksOnPartition)
+                    {
+                        if (logicalDisk == null)
+                            continue;
+
+                        var drive = drives.Where(x => x.Name.StartsWith(logicalDisk["Name"] as string, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                        var mediaType = (physicalDisk["MediaType"] as string).ToLowerInvariant();
+                        if (mediaType.Contains("external") || mediaType.Contains("removable"))
+                            externalDrives.Add(drive);
+                    }
+                }
+            }
+            return externalDrives;
+        }
     }
 }
